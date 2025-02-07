@@ -5,7 +5,8 @@ const express = require('express');
 const cors = require('cors');
 
 const adminRouter = require('./routes/adminRouter');
-const userRouter = require('./routes/userRouter');
+const userRouter = require('./routes/user.js');
+const companyrouter = require('./routes/company.js');
 // const { verifyJWT } = require('./middlewares/auth');
 
 
@@ -33,7 +34,8 @@ app.use('/auth', auth);
 //app.use(verifyJWT);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use('/admin', adminRouter);
-app.use('/users', userRouter);
+app.use('/user', userRouter);
+app.use('/company', companyrouter);
 
 app.listen(port, () =>
   console.log(`Dashboard BE listening at http://localhost:${port}`)
