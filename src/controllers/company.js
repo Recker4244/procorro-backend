@@ -34,4 +34,22 @@ const createCompany = async (req, res) => {
   }
 };
 
-module.exports = {getAllCompanies,createCompany};
+const editCompany = async (req, res) => {
+  try {
+    const id= req.params.company_id;
+    const { name, address, gst, company_type } = req.body;
+    const newUser = await companyService.editCompany(id, name, address, gst, company_type);
+    res.status(200).json(newUser);
+  }
+  catch (err) {
+    if (err instanceof httpErrors) {
+      res.status(err.code).json({ message: err.message });
+    }
+    else {
+      console.log(err);
+      res.status(500).json({ message: 'Internal Server Error' });
+    }
+  }
+};
+
+module.exports = {getAllCompanies,createCompany,editCompany};
