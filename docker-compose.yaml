@@ -12,10 +12,9 @@ services:
       PORT: 3000
     ports:
       - "3000:3000"
-    command: npm start
+    command: npm run dev
     volumes:
-      - .:/app/
-      - /app/node_modules
+      - .:/app
 
   postgres:
     image: postgres:10.4

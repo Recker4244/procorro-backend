@@ -1,6 +1,6 @@
 FROM node:16
 
-WORKDIR /usr/src/app
+WORKDIR /app
 
 COPY package*.json ./
 
@@ -10,4 +10,8 @@ COPY . .
 
 EXPOSE 3000
 
-CMD ["npm", "start"]
+ARG NODE_ENV=development
+ENV NODE_ENV=${NODE_ENV}
+
+# Set the default command based on NODE_ENV
+CMD ["sh", "-c", "if [ \"$NODE_ENV\" = 'production' ]; then node src/server.js; else npm run dev; fi"]
