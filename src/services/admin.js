@@ -1,10 +1,9 @@
+const hashPass = require("../utils/hashPass");
+const db = require("../models");
+const { UniqueConstraintError } = require("sequelize");
+const HttpErrors = require("../../errors/httpErrors");
 
-const hashPass = require('../utils/hashPass');
-const db = require('../models');
-const { UniqueConstraintError } = require('sequelize');
-const HttpErrors = require('../../errors/httpErrors');
-
-const createUser = async (username, name, email, phoneno, role, password,) => {
+const createUser = async (username, name, email, phoneno, role, password) => {
   try {
     const userData = {
       username: username,
@@ -15,22 +14,31 @@ const createUser = async (username, name, email, phoneno, role, password,) => {
     };
     const encryptedPassword = await hashPass(password);
     const userDetails = await db.users.create(userData);
-    await db.credentials.create({ username: username, password: encryptedPassword });
+    await db.credentials.create({
+      username: username,
+      password: encryptedPassword,
+    });
     return userDetails;
   } catch (error) {
     if (error instanceof UniqueConstraintError) {
-      console.log('Error');
-      throw new HttpErrors('Username already exists', 400);
+      console.log("Error");
+      throw new HttpErrors("Username already exists", 400);
     }
-    throw new HttpErrors('Internal server error', 500);
+    throw new HttpErrors("Internal server error", 500);
   }
-
-
-
 };
-const updateUser = async (id, username, name, email, phoneno, role, github, flag) => {
+const updateUser = async (
+  id,
+  username,
+  name,
+  email,
+  phoneno,
+  role,
+  github,
+  flag
+) => {
   if (!db.users.findOne({ where: { id: id } }))
-    throw new HttpErrors('User not found', 400);
+    throw new HttpErrors("User not found", 400);
   const userData = {
     username: username,
     name: name,
@@ -38,7 +46,7 @@ const updateUser = async (id, username, name, email, phoneno, role, github, flag
     phoneno: phoneno,
     role: role,
     github: github,
-    flag: flag
+    flag: flag,
   };
   await db.users.update(userData, { where: { id: id } });
   const user = await db.users.findOne({ where: { id: id } });
@@ -49,10 +57,13 @@ const getUsers = async (page, size) => {
   page--;
   const limit = size ? +size : 3;
   const offset = page ? page * limit : 0;
-  const users = await db.users.findAndCountAll({ offset: offset, limit: limit, order: [['updatedAt', 'DESC']] });
+  const users = await db.users.findAndCountAll({
+    offset: offset,
+    limit: limit,
+    order: [["updatedAt", "DESC"]],
+  });
   return users;
 };
-
 
 const getUser = async (username) => {
   const user = await db.users.findOne({ where: { username: username } });

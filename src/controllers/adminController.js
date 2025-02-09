@@ -1,21 +1,16 @@
-const adminService = require('../services/admin');
-const httpErrors = require('../../errors/httpErrors');
+const adminService = require("../services/admin");
+const httpErrors = require("../../errors/httpErrors");
 
 const createUser = async (request, response) => {
   try {
-    const {
-      name,
-      email,
-      phoneno,
-      role,
-    } = request.body;
-    const username = name.replace(/\s/g, '').toLowerCase();
+    const { name, email, phoneno, role } = request.body;
+    const username = name.replace(/\s/g, "").toLowerCase();
     const newUser = await adminService.createUser(
       username,
       name,
       email,
       phoneno,
-      role,
+      role
     );
     return response.status(201).json(newUser);
   } catch (error) {
@@ -27,21 +22,14 @@ const createUser = async (request, response) => {
 };
 const updateUser = async (request, response) => {
   try {
-    const {
-      id,
-      username,
-      name,
-      email,
-      phoneno,
-      role,
-    } = request.body;
+    const { id, username, name, email, phoneno, role } = request.body;
     const newUser = await adminService.updateUser(
       id,
       username,
       name,
       email,
       phoneno,
-      role,
+      role
     );
     return response.status(200).json(newUser);
   } catch (error) {
@@ -51,7 +39,6 @@ const updateUser = async (request, response) => {
     return response.status(500).json(error.message);
   }
 };
-
 
 const getUsers = async (request, response) => {
   try {
