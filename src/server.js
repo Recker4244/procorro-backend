@@ -5,7 +5,8 @@ const cors = require("cors");
 
 const adminRouter = require("./routes/adminRouter");
 const userRouter = require("./routes/user.js");
-const companyrouter = require("./routes/company.js");
+const companyRouter = require("./routes/company.js");
+const orderRouter = require("./routes/order.js");
 // const { verifyJWT } = require('./middlewares/auth');
 
 require("dotenv").config();
@@ -33,7 +34,8 @@ app.use("/auth", auth);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use("/admin", adminRouter);
 app.use("/user", userRouter);
-app.use("/company", companyrouter);
+app.use("/company", companyRouter);
+app.use("/order", orderRouter);
 
 app.listen(port, () =>
   console.log(`Dashboard BE listening at http://localhost:${port}`)

@@ -8,7 +8,7 @@
   },
   "scripts": {
     "dev": "nodemon --legacy-watch server.js",
-    "start":"node src/server.js",
+    "start": "node src/server.js",
     "db:reset": "npx sequelize db:migrate:undo:all && sequelize db:migrate && sequelize db:seed:all",
     "test": "jest --setupFiles dotenv/config",
     "prepare": "husky install",
@@ -46,6 +46,7 @@
     "multer": "^1.4.5-lts.1",
     "node-cron": "^3.0.2",
     "nodemon": "^2.0.20",
+    "pdfkit": "^0.16.0",
     "pg": "^8.9.0",
     "pg-hstore": "^2.3.4",
     "redis": "^4.6.5",
