@@ -17,10 +17,11 @@ const getAllUsers = async (req, res) => {
 
 const createUser = async (req, res) => {
   try {
-    const { name, email, phone, designation, company_id } = req.body;
+    const { name, email, password, phone, designation, company_id } = req.body;
     const newUser = await userService.createUser(
       name,
       email,
+      password,
       phone,
       designation,
       company_id
@@ -38,7 +39,7 @@ const createUser = async (req, res) => {
 
 const editUser = async (req, res) => {
   try {
-    const id = req.params.user_id;
+    const id = req.params.id;
     const { name, email, phone, designation, company_id } = req.body;
     const newUser = await userService.editUser(
       id,
