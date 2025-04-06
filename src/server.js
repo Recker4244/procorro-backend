@@ -7,6 +7,7 @@ const adminRouter = require("./routes/adminRouter");
 const userRouter = require("./routes/user.js");
 const companyRouter = require("./routes/company.js");
 const orderRouter = require("./routes/order.js");
+const projectRouter = require("./routes/project.js");
 // const { verifyJWT } = require('./middlewares/auth');
 
 require("dotenv").config();
@@ -36,6 +37,7 @@ app.use("/admin", adminRouter);
 app.use("/user", userRouter);
 app.use("/company", companyRouter);
 app.use("/order", orderRouter);
+app.use("/project", projectRouter);
 
 app.listen(port, () =>
   console.log(`Dashboard BE listening at http://localhost:${port}`)
