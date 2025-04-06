@@ -9,6 +9,24 @@ module.exports = {
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
       },
+      company_id: {
+        type: Sequelize.UUID,
+        references: {
+          model: "Companies", // name of the target table
+          key: "id", // key in the target table that we're referencing
+        },
+        onUpdate: "CASCADE",
+        onDelete: "SET NULL",
+      },
+      creator_id: {
+        type: Sequelize.UUID,
+        references: {
+          model: "Users", // name of the target table
+          key: "id", // key in the target table that we're referencing
+        },
+        onUpdate: "CASCADE",
+        onDelete: "SET NULL",
+      },
       type_of_items: {
         type: Sequelize.STRING,
       },

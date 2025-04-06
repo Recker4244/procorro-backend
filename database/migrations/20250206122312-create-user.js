@@ -9,6 +9,10 @@ module.exports = {
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
       },
+      is_superadmin: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false,
+      },
       name: {
         type: Sequelize.STRING,
       },
