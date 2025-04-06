@@ -8,13 +8,13 @@ module.exports = (sequelize, DataTypes) => {
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
-    // static associate(models) {
-    //   // define association here
-    //   Order.hasMany(models.OrderItem, {
-    //     foreignKey: "order_id",
-    //     as: "order_items",
-    //   });
-    // }
+    static associate(models) {
+      // define association here
+      Project.belongsTo(models.Company, {
+        foreignKey: "company_id",
+        as: "company",
+      });
+    }
   }
   Project.init(
     {
@@ -24,8 +24,16 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true,
       },
       name: DataTypes.STRING,
+      company_id: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        references: {
+          model: "Companies", // name of the target table
+          key: "id", // key in the target table that we're referencing
+        },
+      },
       dueDate: DataTypes.DATE,
-      status: DataTypes.STRING
+      status: DataTypes.STRING,
     },
     {
       sequelize,
