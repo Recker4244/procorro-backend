@@ -1,13 +1,28 @@
-const httpErrors = require("http-errors");
+const HttpErrors = require("../../errors/httpErrors");
 const userService = require("../services/user");
+
+const loginUser = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const user = await userService.loginUser(email, password);
+    res.status(200).json(user);
+  } catch (err) {
+    if (err instanceof HttpErrors) {
+      res.status(err.statusCode).json({ message: err.message });
+    } else {
+      console.log(err);
+      res.status(500).json({ message: "Internal Server Error" });
+    }
+  }
+};
 
 const getAllUsers = async (req, res) => {
   try {
     const userData = await userService.getAllUsers();
     res.status(200).json(userData);
   } catch (err) {
-    if (err instanceof httpErrors) {
-      res.status(err.code).json({ message: err.message });
+    if (err instanceof HttpErrors) {
+      res.status(err.statusCode).json({ message: err.message });
     } else {
       console.log(err);
       res.status(500).json({ message: "Internal Server Error" });
@@ -28,8 +43,8 @@ const createUser = async (req, res) => {
     );
     res.status(201).json(newUser);
   } catch (err) {
-    if (err instanceof httpErrors) {
-      res.status(err.code).json({ message: err.message });
+    if (err instanceof HttpErrors.HttpError) {
+      res.status(err.statusCode).json({ message: err.message });
     } else {
       console.log(err);
       res.status(500).json({ message: "Internal Server Error" });
@@ -51,8 +66,8 @@ const editUser = async (req, res) => {
     );
     res.status(200).json(newUser);
   } catch (err) {
-    if (err instanceof httpErrors) {
-      res.status(err.code).json({ message: err.message });
+    if (err instanceof HttpErrors.HttpError) {
+      res.status(err.statusCode).json({ message: err.message });
     } else {
       console.log(err);
       res.status(500).json({ message: "Internal Server Error" });
@@ -60,4 +75,4 @@ const editUser = async (req, res) => {
   }
 };
 
-module.exports = { getAllUsers, createUser, editUser };
+module.exports = { getAllUsers, createUser, editUser, loginUser };

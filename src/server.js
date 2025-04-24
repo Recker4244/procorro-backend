@@ -1,4 +1,3 @@
-const auth = require("./routes/auth.js");
 const cookieParser = require("cookie-parser");
 const express = require("express");
 const cors = require("cors");
@@ -15,7 +14,10 @@ const app = express();
 const port = 3000;
 
 let corsOptions = {
-  origin: "http://localhost:3000",
+  origin: ["http://localhost:3000", "http://localhost:5173", "http://localhost:5174"], // Add your frontend URLs here
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true,
   optionsSuccessStatus: 200,
 };
 
@@ -30,7 +32,6 @@ const swaggerDocument = require("./swagger.json");
 
 app.use(express.json());
 app.use(cookieParser());
-app.use("/auth", auth);
 //app.use(verifyJWT);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use("/admin", adminRouter);
