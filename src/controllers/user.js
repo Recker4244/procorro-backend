@@ -43,7 +43,7 @@ const createUser = async (req, res) => {
     );
     res.status(201).json(newUser);
   } catch (err) {
-    if (err instanceof HttpErrors.HttpError) {
+    if (err instanceof HttpErrors) {
       res.status(err.statusCode).json({ message: err.message });
     } else {
       console.log(err);
@@ -66,7 +66,7 @@ const editUser = async (req, res) => {
     );
     res.status(200).json(newUser);
   } catch (err) {
-    if (err instanceof HttpErrors.HttpError) {
+    if (err instanceof HttpErrors) {
       res.status(err.statusCode).json({ message: err.message });
     } else {
       console.log(err);

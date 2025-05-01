@@ -32,7 +32,7 @@ module.exports = (sequelize, DataTypes) => {
           key: "id", // key in the target table that we're referencing
         },
       },
-      dueDate: DataTypes.DATE,
+      dueDate: DataTypes.STRING,
       status: DataTypes.STRING,
     },
     {

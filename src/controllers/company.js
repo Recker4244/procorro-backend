@@ -1,4 +1,4 @@
-const httpErrors = require("http-errors");
+const HttpErrors = require("../../errors/httpErrors");
 const companyService = require("../services/company");
 
 const getAllCompanies = async (req, res) => {
@@ -6,8 +6,8 @@ const getAllCompanies = async (req, res) => {
     const userData = await companyService.getAllCompanies();
     res.status(200).json(userData);
   } catch (err) {
-    if (err instanceof httpErrors) {
-      res.status(err.code).json({ message: err.message });
+    if (err instanceof HttpErrors) {
+      res.status(err.statusCode).json({ message: err.message });
     } else {
       console.log(err);
       res.status(500).json({ message: "Internal Server Error" });
@@ -26,8 +26,8 @@ const createCompany = async (req, res) => {
     );
     res.status(201).json(newUser);
   } catch (err) {
-    if (err instanceof httpErrors) {
-      res.status(err.code).json({ message: err.message });
+    if (err instanceof HttpErrors) {
+      res.status(err.statusCode).json({ message: err.message });
     } else {
       console.log(err);
       res.status(500).json({ message: "Internal Server Error" });
@@ -45,11 +45,11 @@ const editCompany = async (req, res) => {
       address,
       gst,
       company_type
-    );
+    );  
     res.status(200).json(newUser);
   } catch (err) {
-    if (err instanceof httpErrors) {
-      res.status(err.code).json({ message: err.message });
+    if (err instanceof HttpErrors) {
+      res.status(err.statusCode).json({ message: err.message });
     } else {
       console.log(err);
       res.status(500).json({ message: "Internal Server Error" });

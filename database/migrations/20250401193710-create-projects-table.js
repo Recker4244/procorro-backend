@@ -23,7 +23,7 @@ module.exports = {
         onDelete: "CASCADE",
       },
       dueDate: {
-        type: Sequelize.DATE,
+        type: Sequelize.STRING,
       },
       status: {
         type: Sequelize.STRING,

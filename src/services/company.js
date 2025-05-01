@@ -1,5 +1,5 @@
 const db = require("../models");
-const httpErrors = require("http-errors");
+const HttpErrors = require("../../errors/httpErrors");
 
 const getAllCompanies = async () => {
   const companies = await db.Company.findAll();
@@ -7,6 +7,12 @@ const getAllCompanies = async () => {
 };
 
 const createCompany = async (name, address, gst, company_type) => {
+  const company = await db.Company.findOne({
+    where: { gst: gst },
+  });
+  if (company) {
+    throw new HttpErrors("Company already registered", 400);
+  }
   const newCompany = await db.Company.create({
     name,
     address,
@@ -19,7 +25,7 @@ const createCompany = async (name, address, gst, company_type) => {
 const editCompany = async (id, name, address, gst, company_type) => {
   const company = await db.Company.findOne({ where: { id: id } });
   if (!company) {
-    throw new httpErrors("Company not found", 404);
+    throw new HttpErrors("Company not found", 404);
   }
   const newCompany = await db.Company.update(
     {
