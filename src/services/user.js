@@ -51,9 +51,7 @@ const createUser = async (
     throw new HttpErrors("Company ID does not exist", 400);
   }
   if (user) {
-    const error = new Error("User already registered with this email");
-    error.statusCode = 400;
-    throw error;
+    throw new HttpErrors("User already registered with this email", 400);
   }
   const hashedPassword = await hashPass(password);
   const newUser = await UserModel.create({
