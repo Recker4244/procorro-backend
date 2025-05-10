@@ -1,5 +1,5 @@
 const projectService = require("../services/project");
-const httpErrors = require("http-errors");
+const HttpErrors = require("../../errors/httpErrors");
 
 const createProject = async (req, res) => {
   try {
@@ -7,8 +7,8 @@ const createProject = async (req, res) => {
     const project = await projectService.createProject(projectData);
     res.status(201).json(project);
   } catch (err) {
-    if (err instanceof httpErrors) {
-      res.status(err.code).json({ message: err.message });
+    if (err instanceof HttpErrors) {
+      res.status(err.statusCode).json({ message: err.message });
     } else {
       console.log(err);
       res.status(500).json({ message: "Internal Server Error" });
@@ -22,7 +22,7 @@ const getProject = async (req, res) => {
     const project = await projectService.getProject(id);
     res.status(200).json(project);
   } catch (err) {
-    if (err instanceof httpErrors) {
+    if (err instanceof HttpErrors) {
       res.status(err.code).json({ message: err.message });
     } else {
       console.log(err);
@@ -36,7 +36,7 @@ const getProjects = async (req, res) => {
     const projects = await projectService.getProjects();
     res.status(200).json(projects);
   } catch (err) {
-    if (err instanceof httpErrors) {
+    if (err instanceof HttpErrors) {
       res.status(err.code).json({ message: err.message });
     } else {
       console.log(err);
@@ -52,7 +52,7 @@ const updateProject = async (req, res) => {
     const updatedProject = await projectService.updateProject(id, projectData);
     res.status(200).json(updatedProject);
   } catch (err) {
-    if (err instanceof httpErrors) {
+    if (err instanceof HttpErrors) {
       res.status(err.code).json({ message: err.message });
     } else {
       console.log(err);
@@ -67,7 +67,7 @@ const deleteProject = async (req, res) => {
     await projectService.deleteProject(id);
     res.status(200).json({ message: "Project deleted successfully" });
   } catch (err) {
-    if (err instanceof httpErrors) {
+    if (err instanceof HttpErrors) {
       res.status(err.code).json({ message: err.message });
     } else {
       console.log(err);

@@ -1,13 +1,29 @@
 const db = require("../models");
-const { v4: uuidv4 } = require("uuid");
+const { validate: isUuid } = require('uuid');
 const HttpErrors = require("../../errors/httpErrors");
 
 const createProject = async (projectData) => {
+  if (!isUuid(projectData.company_id)) {
+    throw new HttpErrors("Invalid company ID format", 400);
+  }
+  const company = await db.Company.findOne({
+    where: { id: projectData.company_id },
+  });
+  if (!company) {
+    throw new HttpErrors("Company ID does not exist", 400);
+  }
   try {
-    projectData.id = uuidv4();
+    if(projectData.workType === "Government"){
+      projectData.governmentDepartmentName = projectData.workTypeSpecific;
+    }
+    else if(projectData.workType === "Private"){
+      projectData.privateDepartmentClient = projectData.workTypeSpecific;
+    }
+    delete projectData.workTypeSpecific;
     const projectDetails = await db.Project.create(projectData);
     return projectDetails;
   } catch (error) {
+    console.error("Create project error:", error);
     throw new HttpErrors("Internal server error", 500);
   }
 };

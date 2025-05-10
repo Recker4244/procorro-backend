@@ -23,7 +23,11 @@ module.exports = (sequelize, DataTypes) => {
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
       },
-      name: DataTypes.STRING,
+      project_name: DataTypes.STRING,
+      project_location: DataTypes.STRING,
+      siteInchargeName: DataTypes.STRING,
+      siteInchargeNumber: DataTypes.STRING,
+      approvedBrands: DataTypes.STRING,
       company_id: {
         type: DataTypes.UUID,
         allowNull: false,
@@ -32,8 +36,10 @@ module.exports = (sequelize, DataTypes) => {
           key: "id", // key in the target table that we're referencing
         },
       },
-      dueDate: DataTypes.STRING,
-      status: DataTypes.STRING,
+      project_type: DataTypes.STRING,
+      workType: DataTypes.STRING,
+      governmentDepartmentName: DataTypes.STRING,
+      privateDepartmentClient: DataTypes.STRING,
     },
     {
       sequelize,

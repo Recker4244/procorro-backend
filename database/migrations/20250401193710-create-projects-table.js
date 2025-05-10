@@ -9,7 +9,19 @@ module.exports = {
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
       },
-      name: {
+      project_name: {
+        type: Sequelize.STRING,
+      },
+      project_location: {
+        type: Sequelize.STRING,
+      },
+      siteInchargeName: {
+        type: Sequelize.STRING,
+      },
+      siteInchargeNumber: {
+        type: Sequelize.STRING,
+      },
+      approvedBrands: {
         type: Sequelize.STRING,
       },
       company_id: {
@@ -22,10 +34,16 @@ module.exports = {
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
       },
-      dueDate: {
+      project_type: {
         type: Sequelize.STRING,
       },
-      status: {
+      workType: {
+        type: Sequelize.STRING,
+      },
+      governmentDepartmentName: {
+        type: Sequelize.STRING,
+      },
+      privateDepartmentClient: {
         type: Sequelize.STRING,
       },
       createdAt: {
