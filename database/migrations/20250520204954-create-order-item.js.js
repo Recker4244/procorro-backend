@@ -18,6 +18,21 @@ module.exports = {
       unit_price: {
         type: Sequelize.INTEGER,
       },
+      delivery_time_weeks: {
+        type: Sequelize.INTEGER,
+        allowNull: false
+      },
+      paymentTerms: {
+        type: Sequelize.ENUM('Advanced', 'Credit'),
+        allowNull: true,
+      },
+      quotation_item_id: { // NEW: trace to QuotationItem
+        type: Sequelize.UUID,
+        references: {
+          model: "QuotationItems",
+          key: "id",
+        },
+      },
       order_id: {
         type: Sequelize.UUID,
         references: {
