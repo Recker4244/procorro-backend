@@ -4,17 +4,64 @@ const HttpErrors = require("../../errors/httpErrors");
 
 const createOrder = async (orderData) => {
   try {
-    orderData.id = uuidv4();
-    const orderDetails = await db.Order.create(orderData);
-    return orderDetails;
+    // Start transaction for atomic operation
+    const result = await db.sequelize.transaction(async (transaction) => {
+      // Generate a new UUID for the order
+      const orderId = uuidv4();
+      
+      // Separate items from order fields
+      const { items, ...orderFields } = orderData;
+
+      // Create the Order
+      const order = await db.Order.create(
+        { ...orderFields, id: orderId },
+        { transaction }
+      );
+
+      // Create OrderItems if provided
+      if (items && Array.isArray(items) && items.length > 0) {
+        const orderItems = items.map((item) => ({
+          ...item,
+          id: uuidv4(),
+          order_id: orderId, // Foreign key association
+        }));
+        await db.OrderItem.bulkCreate(orderItems, { transaction });
+      }
+
+      return order;
+    });
+
+    return result;
   } catch (error) {
+    console.error("Create Order error:", error);
     throw new HttpErrors("Internal server error", 500);
   }
 };
 
 const getOrder = async (id) => {
   try {
-    const order = await db.Order.findOne({ where: { id: id } });
+    const order = await db.Order.findOne({
+      where: { id: id },
+      include: [
+        {
+          model: db.OrderItem,
+          as: 'order_items',
+          include: [
+            {
+              model: db.QuotationItem,
+              as: 'quotationItem',
+              include: [
+                {
+                  model: db.Quotation,
+                  as: 'quotation',
+                  attributes: ['supplierName']
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
     if (!order) {
       throw new HttpErrors("Order not found", 404);
     }
@@ -33,6 +80,12 @@ const getOrders = async (page, size) => {
       offset: offset,
       limit: limit,
       order: [["updatedAt", "DESC"]],
+      include: [
+        {
+          model: db.OrderItem,
+          as: 'order_items',
+        }
+      ]
     });
     return orders;
   } catch (error) {
@@ -67,4 +120,35 @@ const deleteOrder = async (id) => {
   }
 };
 
-module.exports = { createOrder, getOrder, getOrders, updateOrder, deleteOrder };
+
+// CREATE tracking event
+const addTrackingEvent = async (orderId, status, remarks = null) => {
+  try {
+    const event = await db.OrderTrackingEvent.create({
+      id: uuidv4(),
+      order_id: orderId,
+      status,
+      remarks,
+      timestamp: new Date(),
+    });
+    return event;
+  } catch (error) {
+    console.error("addTrackingEvent error:", error);
+    throw new HttpErrors("Failed to add tracking event", 500);
+  }
+};
+
+// GET all tracking events for an order
+const getTrackingEvents = async (orderId) => {
+  try {
+    const events = await db.OrderTrackingEvent.findAll({
+      where: { order_id: orderId },
+      order: [["timestamp", "ASC"]],
+    });
+    return events;
+  } catch (error) {
+    throw new HttpErrors("Failed to fetch tracking events", 500);
+  }
+};
+
+module.exports = { createOrder, getOrder, getOrders, updateOrder, deleteOrder, addTrackingEvent, getTrackingEvents };

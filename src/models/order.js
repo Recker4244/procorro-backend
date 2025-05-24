@@ -24,7 +24,7 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true,
       },
       type_of_items: DataTypes.STRING,
-      date_of_generation: DataTypes.STRING,
+      date_of_generation: DataTypes.DATE,
       po_id: DataTypes.STRING,
       delivery_address: DataTypes.STRING,
       point_of_contact: DataTypes.STRING,

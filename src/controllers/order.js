@@ -1,15 +1,15 @@
 const orderService = require("../services/order");
-const httpErrors = require("http-errors");
+const HttpErrors = require("../../errors/httpErrors");
 const PDFDocument = require("pdfkit");
 
 const createOrder = async (req, res) => {
   try {
     const orderData = req.body;
     const order = await orderService.createOrder(orderData);
-    res.status(201).json(order);
+    res.status(201).json({ id: order.id });
   } catch (err) {
-    if (err instanceof httpErrors) {
-      res.status(err.code).json({ message: err.message });
+    if (err instanceof HttpErrors) {
+      res.status(err.statusCode).json({ message: err.message });
     } else {
       console.log(err);
       res.status(500).json({ message: "Internal Server Error" });
@@ -23,8 +23,8 @@ const getOrder = async (req, res) => {
     const order = await orderService.getOrder(id);
     res.status(200).json(order);
   } catch (err) {
-    if (err instanceof httpErrors) {
-      res.status(err.code).json({ message: err.message });
+    if (err instanceof HttpErrors) {
+      res.status(err.statusCode).json({ message: err.message });
     } else {
       console.log(err);
       res.status(500).json({ message: "Internal Server Error" });
@@ -38,8 +38,8 @@ const getOrders = async (req, res) => {
     const orders = await orderService.getOrders(page, size);
     res.status(200).json(orders);
   } catch (err) {
-    if (err instanceof httpErrors) {
-      res.status(err.code).json({ message: err.message });
+    if (err instanceof HttpErrors) {
+      res.status(err.statusCode).json({ message: err.message });
     } else {
       console.log(err);
       res.status(500).json({ message: "Internal Server Error" });
@@ -54,8 +54,8 @@ const updateOrder = async (req, res) => {
     const updatedOrder = await orderService.updateOrder(id, orderData);
     res.status(200).json(updatedOrder);
   } catch (err) {
-    if (err instanceof httpErrors) {
-      res.status(err.code).json({ message: err.message });
+    if (err instanceof HttpErrors) {
+      res.status(err.statusCode).json({ message: err.message });
     } else {
       console.log(err);
       res.status(500).json({ message: "Internal Server Error" });
@@ -69,8 +69,40 @@ const deleteOrder = async (req, res) => {
     await orderService.deleteOrder(id);
     res.status(200).json({ message: "Order deleted successfully" });
   } catch (err) {
-    if (err instanceof httpErrors) {
-      res.status(err.code).json({ message: err.message });
+    if (err instanceof HttpErrors) {
+      res.status(err.statusCode).json({ message: err.message });
+    } else {
+      console.log(err);
+      res.status(500).json({ message: "Internal Server Error" });
+    }
+  }
+};
+
+const addTrackingEvent = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status, remarks } = req.body;
+    const event = await orderService.addTrackingEvent(id, status, remarks);
+    res.status(201).json(event);
+  } catch (err) {
+    if (err instanceof HttpErrors) {
+      res.status(err.statusCode).json({ message: err.message });
+    } else {
+      console.log(err);
+      res.status(500).json({ message: "Internal Server Error" });
+    }
+  }
+};
+
+// GET /order/:id/tracking — Get all tracking events for an order
+const getTrackingEvents = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const events = await orderService.getTrackingEvents(id);
+    res.status(200).json(events);
+  } catch (err) {
+    if (err instanceof HttpErrors) {
+      res.status(err.statusCode).json({ message: err.message });
     } else {
       console.log(err);
       res.status(500).json({ message: "Internal Server Error" });
@@ -211,5 +243,7 @@ module.exports = {
   getOrders,
   updateOrder,
   deleteOrder,
+  addTrackingEvent,
+  getTrackingEvents,
   generatePurchaseOrder,
 };
