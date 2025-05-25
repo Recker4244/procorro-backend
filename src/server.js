@@ -14,7 +14,7 @@ const quotationRouter = require("./routes/quotation.js");
 
 require("dotenv").config();
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 const allowedOrigins = process.env.CORS_ALLOWED_ORIGINS
   ? process.env.CORS_ALLOWED_ORIGINS.split(',')
@@ -50,6 +50,6 @@ app.use("/rfq", rfqRouter);
 // app.use("/supplier", supplierRouter);
 app.use("/quotation", quotationRouter);
 
-app.listen(port, () =>
-  console.log(`Dashboard BE listening at http://localhost:${port}`)
+app.listen(port, '0.0.0.0', () =>
+  console.log(`Dashboard BE listening at http://0.0.0.0:${port}`)
 );
