@@ -16,8 +16,12 @@ require("dotenv").config();
 const app = express();
 const port = 3000;
 
+const allowedOrigins = process.env.CORS_ALLOWED_ORIGINS
+  ? process.env.CORS_ALLOWED_ORIGINS.split(',')
+  : ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:4000'];
+
 let corsOptions = {
-  origin: ["http://localhost:5173", "http://localhost:5174", "http://localhost:4000"], // Add your frontend URLs here
+  origin: allowedOrigins, // Add your frontend URLs here
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
