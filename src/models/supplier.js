@@ -4,6 +4,7 @@ const { v4: uuidv4 } = require("uuid");
 
 module.exports = (sequelize, DataTypes) => {
   class Supplier extends Model {
+    // eslint-disable-next-line no-unused-vars
     static associate(models) {
       // Associations can be defined here in future
       // For example: Supplier.hasMany(models.Quotation, { foreignKey: 'supplierId', as: 'quotations' });

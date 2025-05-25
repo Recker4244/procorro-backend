@@ -1,6 +1,8 @@
-const path = require('path');
-const envPath = path.join(__dirname, '../../.env');
-require('dotenv').config({ path: envPath });
+if (process.env.NODE_ENV !== 'production') {
+  const path = require('path');
+  const envPath = path.join(__dirname, '../../.env');
+  require('dotenv').config({ path: envPath });
+}
 
 module.exports = {
   development: {
@@ -18,5 +20,15 @@ module.exports = {
     host: process.env.DB_HOST,
     dialect: 'postgres',
     port: process.env.DB_PORT,
+  },
+  production: {
+    use_env_variable: 'DATABASE_URL',
+    dialect: 'postgres',
+    dialectOptions: {
+      ssl: {
+        require: true,
+        rejectUnauthorized: false,
+      },
+    },
   },
 };
