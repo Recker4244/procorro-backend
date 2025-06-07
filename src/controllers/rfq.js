@@ -4,7 +4,8 @@ const HttpErrors = require("../../errors/httpErrors");
 const createRfq = async (req, res) => {
   try {
     const rfqData = req.body;
-    const rfq = await rfqService.createRfq(rfqData);
+    const company_id = req.user.company_id;
+    const rfq = await rfqService.createRfq(company_id, rfqData);
     res.status(201).json(rfq);
   } catch (err) {
     if (err instanceof HttpErrors) {
@@ -19,7 +20,8 @@ const createRfq = async (req, res) => {
 const getRfq = async (req, res) => {
   try {
     const { id } = req.params;
-    const rfq = await rfqService.getRfq(id);
+    const company_id = req.user.company_id;
+    const rfq = await rfqService.getRfq(company_id, id);
     res.status(200).json(rfq);
   } catch (err) {
     if (err instanceof HttpErrors) {
@@ -32,8 +34,10 @@ const getRfq = async (req, res) => {
 };
 
 const getRfqs = async (req, res) => {
+  const company_id = req.user.company_id;
+  const company_type = req.user.company_type;
   try {
-    const rfqs = await rfqService.getRfqs();
+    const rfqs = await rfqService.getRfqs(company_id, company_type);
     res.status(200).json(rfqs);
   } catch (err) {
     if (err instanceof HttpErrors) {
@@ -48,7 +52,8 @@ const getRfqs = async (req, res) => {
 const getRFQComparison = async(req,res) => {
   try {
     const rfqId = req.params.rfqId;
-    const rfqComparison = await rfqService.getRFQComparison(rfqId);
+    const company_id = req.user.company_id;
+    const rfqComparison = await rfqService.getRFQComparison(company_id, rfqId);
     res.status(200).json(rfqComparison);
   } catch (err) {
     if (err instanceof HttpErrors) {
@@ -63,8 +68,9 @@ const getRFQComparison = async(req,res) => {
 const updateRfq = async (req, res) => {
   try {
     const { id } = req.params;
+    const company_id = req.user.company_id;
     const rfqData = req.body;
-    const updatedRfq = await rfqService.updateRfq(id, rfqData);
+    const updatedRfq = await rfqService.updateRfq(company_id, id, rfqData);
     res.status(200).json(updatedRfq);
   } catch (err) {
     if (err instanceof HttpErrors) {
@@ -79,7 +85,8 @@ const updateRfq = async (req, res) => {
 const deleteRfq = async (req, res) => {
   try {
     const { id } = req.params;
-    await rfqService.deleteRfq(id);
+    const company_id = req.user.company_id;
+    await rfqService.deleteRfq(company_id, id);
     res.status(200).json({ message: "RFQ deleted successfully" });
   } catch (err) {
     if (err instanceof HttpErrors) {

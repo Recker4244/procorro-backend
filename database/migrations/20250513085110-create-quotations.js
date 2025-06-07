@@ -32,6 +32,16 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false
       },
+      company_id: {
+        type: Sequelize.UUID,
+        allowNull: false,
+        references: {
+          model: 'Companies',
+          key: 'id'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE'
+      },
       // price: {
       //   type: Sequelize.DECIMAL,
       //   allowNull: false

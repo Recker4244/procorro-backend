@@ -2,7 +2,7 @@ const db = require("../models");
 const { validate: isUuid } = require("uuid");
 const HttpErrors = require("../../errors/httpErrors");
 
-const createRfq = async (rfqData) => {
+const createRfq = async (company_id, rfqData) => {
   if (!isUuid(rfqData.projectId)) {
     throw new HttpErrors("Invalid project ID format", 400);
   }
@@ -11,7 +11,10 @@ const createRfq = async (rfqData) => {
   if (!project) {
     throw new HttpErrors("Project ID does not exist", 400);
   }
-
+  if (project.company_id !== company_id) {
+    throw new HttpErrors("Unauthorized: Project does not belong to your company", 403);
+  }
+  rfqData.status = "Submitted";
   try {
     const result = await db.sequelize.transaction(async (t) => {
       const rfq = await db.Rfq.create(rfqData, { transaction: t });
@@ -34,7 +37,7 @@ const createRfq = async (rfqData) => {
   }
 };
 
-const getRfq = async (id) => {
+const getRfq = async (company_id, id) => {
   try {
     const rfq = await db.Rfq.findOne({
       where: { id },
@@ -42,12 +45,20 @@ const getRfq = async (id) => {
         {
           model: db.RfqItem,
           as: 'items', // Ensure this matches your model association
-          attributes: ['id', 'type', 'quantity', 'unit', 'notes'],
+          attributes: ['id', 'type', 'quantity', 'unit', 'notes', 'status'],
         },
+        {
+          model: db.Project,
+          as: 'project',
+          attributes: ['company_id']
+        }
       ],
     });
     if (!rfq) {
       throw new HttpErrors("RFQ not found", 404);
+    }
+    if (rfq.project.company_id !== company_id) {
+      throw new HttpErrors("Unauthorized: RFQ does not belong to your company", 403);
     }
     return rfq;
   } catch (error) {
@@ -57,36 +68,78 @@ const getRfq = async (id) => {
 };
 
 
-const getRfqs = async () => {
+const getRfqs = async (company_id, company_type) => {
   try {
-    const rfqs = await db.Rfq.findAll({
-      include: [
-        {
-          model: db.Project,
-          as: 'project',
-          attributes: ['project_name'],
-        },
-        {
-          model: db.RfqItem,
-          as: 'items',
-          attributes: ['id'],
-          include: [
-            {
-              model: db.QuotationItem,
-              as: 'quotationItems',
-              attributes: ['id', 'quotationId'],
-              include: [
-                {
-                  model: db.Quotation,
-                  as: 'quotation',
-                  attributes: ['id'],
-                },
-              ],
-            },
-          ],
-        }
-      ],
-    });
+    let rfqs;
+    if (company_type === "Supplier") {
+      rfqs = await db.Rfq.findAll({
+        where: { status: "Submitted" },
+        include: [
+          {
+            model: db.Project,
+            as: 'project',
+            attributes: ['project_name', 'company_id'],
+            include: [
+              {
+                model: db.Company,
+                as: 'company',
+                attributes: ['name'],
+              }
+            ]
+          },
+          {
+            model: db.RfqItem,
+            as: 'items',
+            attributes: ['id', 'type', 'quantity', 'unit', 'status'],
+            include: [
+              {
+                model: db.QuotationItem,
+                as: 'quotationItems',
+                attributes: ['id', 'quotationId'],
+                include: [
+                  {
+                    model: db.Quotation,
+                    as: 'quotation',
+                    attributes: ['id'],
+                  },
+                ],
+              },
+            ],
+          }
+        ],
+      });
+    } else {
+      rfqs = await db.Rfq.findAll({
+        include: [
+          {
+            model: db.Project,
+            as: 'project',
+            attributes: ['project_name', 'company_id'],
+            where: { company_id }
+          },
+          {
+            model: db.RfqItem,
+            as: 'items',
+            attributes: ['id', 'type', 'quantity', 'unit', 'status'],
+            include: [
+              {
+                model: db.QuotationItem,
+                as: 'quotationItems',
+                attributes: ['id', 'quotationId'],
+                include: [
+                  {
+                    model: db.Quotation,
+                    as: 'quotation',
+                    attributes: ['id'],
+                  },
+                ],
+              },
+            ],
+          }
+        ],
+      });
+    }
+
     const enrichedRfqs = rfqs.map(rfq => {
       const totalItems = rfq.items ? rfq.items.length : 0;
       const totalQuotations = rfq.items.reduce((sum, item) => sum + (item.quotationItems ? item.quotationItems.length : 0), 0);
@@ -99,8 +152,16 @@ const getRfqs = async () => {
         status: rfq.status,
         createdAt: rfq.createdAt,
         projectName: rfq.project?.project_name,
+        companyName: rfq.project?.company?.name,
         totalItems,
         totalQuotations,
+        items: rfq.items.map(item => ({
+          id: item.id,
+          type: item.type,
+          quantity: item.quantity,
+          unit: item.unit,
+          status:item.status
+        })),
       };
     });
 
@@ -111,13 +172,22 @@ const getRfqs = async () => {
   }
 };
 
-const updateRfq = async (id, rfqData) => {
+const updateRfq = async (company_id, id, rfqData) => {
   try {
-    const rfq = await db.Rfq.findOne({ where: { id } });
+    const rfq = await db.Rfq.findOne({
+      where: { id },
+      include: [{
+        model: db.Project,
+        as: 'project',
+        attributes: ['company_id']
+      }]
+    });
     if (!rfq) {
       throw new HttpErrors("RFQ not found", 404);
     }
-
+    if (rfq.project.company_id !== company_id) {
+      throw new HttpErrors("Unauthorized: RFQ does not belong to your company", 403);
+    }
     await db.Rfq.update(rfqData, { where: { id } });
     const updatedRfq = await db.Rfq.findOne({ where: { id } });
     return updatedRfq;
@@ -127,13 +197,22 @@ const updateRfq = async (id, rfqData) => {
   }
 };
 
-const deleteRfq = async (id) => {
+const deleteRfq = async (company_id, id) => {
   try {
-    const rfq = await db.Rfq.findOne({ where: { id } });
+    const rfq = await db.Rfq.findOne({
+      where: { id },
+      include: [{
+        model: db.Project,
+        as: 'project',
+        attributes: ['company_id']
+      }]
+    });
     if (!rfq) {
       throw new HttpErrors("RFQ not found", 404);
     }
-
+    if (rfq.project.company_id !== company_id) {
+      throw new HttpErrors("Unauthorized: RFQ does not belong to your company", 403);
+    }
     await db.Rfq.destroy({ where: { id } });
     return { message: "RFQ deleted successfully" };
   } catch (error) {
@@ -141,7 +220,7 @@ const deleteRfq = async (id) => {
     throw new HttpErrors("Internal server error", 500);
   }
 };
-const getRFQComparison = async (rfqId) => {
+const getRFQComparison = async (company_id, rfqId) => {
   try {
     // Fetch RFQ details with items and quotations
     const rfq = await db.Rfq.findOne({
@@ -155,7 +234,8 @@ const getRFQComparison = async (rfqId) => {
             "project_location",
             "siteInchargeName",
             "siteInchargeNumber",
-          ], // include project details
+            "company_id"
+          ],
         },
         {
           model: db.RfqItem,
@@ -178,6 +258,9 @@ const getRFQComparison = async (rfqId) => {
 
     if (!rfq) {
       throw new HttpErrors("RFQ not found", 404);
+    }
+    if (rfq.project.company_id !== company_id) {
+      throw new HttpErrors("Unauthorized: RFQ does not belong to your company", 403);
     }
     return rfq;
   } catch (error) {

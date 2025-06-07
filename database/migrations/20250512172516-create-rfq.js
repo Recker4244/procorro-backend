@@ -35,7 +35,8 @@ module.exports = {
         type: Sequelize.TEXT
       },
       status: {
-        type: Sequelize.STRING,
+        type: Sequelize.ENUM,
+        values: ["Draft", "Submitted", "Closed"],
         defaultValue: 'Draft',
       },
       createdAt: {

@@ -14,6 +14,7 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "order_id",
         as: "order_items",
       });
+      Order.hasMany(models.OrderTrackingEvent, { as: 'tracking_events', foreignKey: 'order_id' });
     }
   }
   Order.init(
@@ -25,7 +26,12 @@ module.exports = (sequelize, DataTypes) => {
       },
       type_of_items: DataTypes.STRING,
       date_of_generation: DataTypes.DATE,
-      po_id: DataTypes.STRING,
+      po_id: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        unique: true,
+        allowNull: false,
+      },
       delivery_address: DataTypes.STRING,
       point_of_contact: DataTypes.STRING,
       point_of_contactphone: DataTypes.STRING,

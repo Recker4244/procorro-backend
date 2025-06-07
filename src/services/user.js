@@ -4,6 +4,14 @@ const CompanyModel = require("../models").Company;
 const bcrypt = require("bcryptjs");
 const { validate: isUuid } = require('uuid');
 const HttpErrors = require("../../errors/httpErrors");
+const jwt = require("jsonwebtoken");
+
+require("dotenv").config();
+
+const getUser = async (id) => {
+  const user = await UserModel.findByPk(id);
+  return user;
+};
 
 const getAllUsers = async () => {
   const users = await UserModel.findAll();
@@ -25,7 +33,18 @@ const loginUser = async (email, password) => {
 
   if (!validPassword) throw new HttpErrors("Invalid email or password", 400);
 
-  return user;
+  const company = await CompanyModel.findOne({ where: { id: user.company_id } });
+  const payload = {
+    id: user.id,
+    email: user.email,
+    company_id: user.company_id,
+    company_type: company.company_type,
+  };
+
+  const token = jwt.sign(payload, process.env.jwtPrivateKey, {
+    expiresIn: "6h",
+  });
+  return { user: { ...user.toJSON(), company_type: company.company_type }, token };
 };
 
 const createUser = async (
@@ -62,7 +81,16 @@ const createUser = async (
     designation,
     company_id,
   });
-  return newUser;
+  const payload = {
+    id: newUser.id,
+    email: newUser.email,
+    company_id: newUser.company_id,
+    company_type: company.company_type,
+  };
+  const token = jwt.sign(payload, process.env.jwtPrivateKey, {
+    expiresIn: "6h",
+  });
+  return { user: { ...newUser.toJSON(), company_type: company.company_type }, token };
 };
 
 const editUser = async (id, name, email, phone, designation, company_id) => {
@@ -83,4 +111,4 @@ const editUser = async (id, name, email, phone, designation, company_id) => {
   return newUser;
 };
 
-module.exports = { getAllUsers, createUser, editUser, loginUser };
+module.exports = { getUser, getAllUsers, createUser, editUser, loginUser };

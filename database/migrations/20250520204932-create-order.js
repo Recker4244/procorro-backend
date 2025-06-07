@@ -16,7 +16,10 @@ module.exports = {
         type: Sequelize.DATE,
       },
       po_id: {
-        type: Sequelize.STRING,
+        type: Sequelize.INTEGER,
+        autoIncrement: true,
+        unique: true,
+        allowNull: false,
       },
       delivery_address: {
         type: Sequelize.STRING,

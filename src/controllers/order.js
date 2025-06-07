@@ -5,7 +5,9 @@ const PDFDocument = require("pdfkit");
 const createOrder = async (req, res) => {
   try {
     const orderData = req.body;
-    const order = await orderService.createOrder(orderData);
+    const company_id = req.user.company_id;
+    const company_type = req.user.company_type;
+    const order = await orderService.createOrder(company_id, company_type, orderData);
     res.status(201).json({ id: order.id });
   } catch (err) {
     if (err instanceof HttpErrors) {
@@ -20,7 +22,9 @@ const createOrder = async (req, res) => {
 const getOrder = async (req, res) => {
   try {
     const { id } = req.params;
-    const order = await orderService.getOrder(id);
+    const company_id = req.user.company_id;
+    const company_type = req.user.company_type;
+    const order = await orderService.getOrder(company_id, id, company_type);
     res.status(200).json(order);
   } catch (err) {
     if (err instanceof HttpErrors) {
@@ -35,8 +39,15 @@ const getOrder = async (req, res) => {
 const getOrders = async (req, res) => {
   try {
     const { page, size } = req.query;
-    const orders = await orderService.getOrders(page, size);
-    res.status(200).json(orders);
+    const company_id = req.user.company_id;
+    const company_type = req.user.company_type;
+    if (company_type === "Supplier") {
+      const orders = await orderService.getOrdersForSupplier(company_id, page, size);
+      res.status(200).json(orders);
+    } else {
+      const orders = await orderService.getOrders(company_id, page, size);
+      res.status(200).json(orders);
+    }
   } catch (err) {
     if (err instanceof HttpErrors) {
       res.status(err.statusCode).json({ message: err.message });
@@ -50,8 +61,10 @@ const getOrders = async (req, res) => {
 const updateOrder = async (req, res) => {
   try {
     const { id } = req.params;
+    const company_id = req.user.company_id;
+    const company_type = req.user.company_type;
     const orderData = req.body;
-    const updatedOrder = await orderService.updateOrder(id, orderData);
+    const updatedOrder = await orderService.updateOrder(company_id, company_type, id, orderData);
     res.status(200).json(updatedOrder);
   } catch (err) {
     if (err instanceof HttpErrors) {
@@ -66,7 +79,9 @@ const updateOrder = async (req, res) => {
 const deleteOrder = async (req, res) => {
   try {
     const { id } = req.params;
-    await orderService.deleteOrder(id);
+    const company_id = req.user.company_id;
+    const company_type = req.user.company_type;
+    await orderService.deleteOrder(company_id, company_type, id);
     res.status(200).json({ message: "Order deleted successfully" });
   } catch (err) {
     if (err instanceof HttpErrors) {
@@ -82,7 +97,9 @@ const addTrackingEvent = async (req, res) => {
   try {
     const { id } = req.params;
     const { status, remarks } = req.body;
-    const event = await orderService.addTrackingEvent(id, status, remarks);
+    const company_id = req.user.company_id;
+    const company_type = req.user.company_type;
+    const event = await orderService.addTrackingEvent(company_id,  company_type, id, status, remarks);
     res.status(201).json(event);
   } catch (err) {
     if (err instanceof HttpErrors) {
@@ -98,7 +115,9 @@ const addTrackingEvent = async (req, res) => {
 const getTrackingEvents = async (req, res) => {
   try {
     const { id } = req.params;
-    const events = await orderService.getTrackingEvents(id);
+    const company_id = req.user.company_id;
+    const company_type = req.user.company_type;
+    const events = await orderService.getTrackingEvents(company_id, company_type, id);
     res.status(200).json(events);
   } catch (err) {
     if (err instanceof HttpErrors) {
