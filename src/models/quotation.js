@@ -36,6 +36,14 @@ module.exports = (sequelize, DataTypes) => {
           key: "id",
         },
       },
+      company_id: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        references: {
+          model: "Companies",
+          key: "id"
+        }
+      },
       supplierName: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -58,7 +66,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       status: {
         type: DataTypes.ENUM("Open for evaluation", "Closed", "Pending", "Submitted"),
-        defaultValue: "Submitted",
+        defaultValue: "Open for evaluation",
       },
     },
     {

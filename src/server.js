@@ -23,7 +23,7 @@ const allowedOrigins = process.env.CORS_ALLOWED_ORIGINS
 let corsOptions = {
   origin: allowedOrigins, // Add your frontend URLs here
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
+  allowedHeaders: ["Content-Type", "Authorization", "x-auth-token"],
   credentials: true,
   optionsSuccessStatus: 200,
 };

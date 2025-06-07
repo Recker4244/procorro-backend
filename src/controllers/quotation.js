@@ -4,7 +4,8 @@ const HttpErrors = require("../../errors/httpErrors");
 const createQuotation = async (req, res) => {
   try {
     const quotationData = req.body;
-    const quotation = await quotationService.createQuotation(quotationData);
+    const company_id = req.user.company_id;
+    const quotation = await quotationService.createQuotation(company_id, quotationData);
     res.status(201).json(quotation);
   } catch (err) {
     if (err instanceof HttpErrors) {
@@ -49,7 +50,8 @@ const updateQuotation = async (req, res) => {
   try {
     const { id } = req.params;
     const quotationData = req.body;
-    const updatedQuotation = await quotationService.updateQuotation(id, quotationData);
+    const company_id = req.user.company_id;
+    const updatedQuotation = await quotationService.updateQuotation(company_id, id, quotationData);
     res.status(200).json(updatedQuotation);
   } catch (err) {
     if (err instanceof HttpErrors) {
@@ -64,7 +66,8 @@ const updateQuotation = async (req, res) => {
 const deleteQuotation = async (req, res) => {
   try {
     const { id } = req.params;
-    await quotationService.deleteQuotation(id);
+    const company_id = req.user.company_id;
+    await quotationService.deleteQuotation(id, company_id);
     res.status(200).json({ message: "Quotation deleted successfully" });
   } catch (err) {
     if (err instanceof HttpErrors) {

@@ -14,6 +14,12 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "company_id",
         as: "company",
       });
+      Project.hasMany(models.Rfq, {
+        foreignKey: "projectId",
+        as: "rfqs",
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+      });
     }
   }
   Project.init(

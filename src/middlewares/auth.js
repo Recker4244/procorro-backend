@@ -51,6 +51,14 @@ function isLeadership(req, res, next) {
     return res.status(403).send("Access denied. Unauthorised.");
   next();
 }
+function requireCompanyType(...allowedTypes) {
+  return (req, res, next) => {
+    if (!req.user || !allowedTypes.includes(req.user.company_type)) {
+      return res.status(403).json({ message: "Access denied: insufficient company type." });
+    }
+    next();
+  };
+}
 
 module.exports = {
   validateRequest,
@@ -59,4 +67,5 @@ module.exports = {
   isDeveloper,
   isManager,
   isLeadership,
+  requireCompanyType
 };

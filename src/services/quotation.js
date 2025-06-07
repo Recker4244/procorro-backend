@@ -2,13 +2,15 @@ const db = require("../models");
 const HttpErrors = require("../../errors/httpErrors");
 
 // CREATE QUOTATION WITH QUOTATION ITEMS
-const createQuotation = async (quotationData) => {
+const createQuotation = async (company_id, quotationData) => {
+  const company = await db.Company.findOne({ where: { id: company_id } });
+  if (!company) throw new HttpErrors("Company not found", 400);
+  const supplierName = company.name;
   const {
     rfqId,
-    supplierName,
-    deliveryTimeWeeks,
-    paymentTerms,
-    status,
+    // deliveryTimeWeeks,
+    // paymentTerms,
+    // status,
     quotationItems // Array of { rfqItemId, price, totalCost, ... }
   } = quotationData;
 
@@ -21,12 +23,14 @@ const createQuotation = async (quotationData) => {
   if (!rfq) {
     throw new HttpErrors("RFQ not found", 400);
   }
-
   // Optional: Validate all RFQItems exist
   for (const item of quotationItems) {
     const rfqItem = await db.RfqItem.findOne({ where: { id: item.rfqItemId } });
     if (!rfqItem) {
       throw new HttpErrors(`RFQ Item ${item.rfqItemId} not found`, 400);
+    }
+    if (rfqItem.status !== "Open") {
+      throw new HttpErrors(`Quotations are not allowed for item ${item.rfqItemId} (status: ${rfqItem.status})`, 400);
     }
     // Optionally calculate totalCost if not provided
     if (!item.totalCost) {
@@ -38,12 +42,13 @@ const createQuotation = async (quotationData) => {
     // Create the Quotation
     const quotation = await db.Quotation.create(
       {
-        rfqId,
+        rfqId: quotationData.rfqId,
+        company_id: company_id,
         supplierName,
-        deliveryTimeWeeks,
-        paymentTerms,
-        status,
-        quotationItems // Will be created via association
+        deliveryTimeWeeks: quotationData.deliveryTimeWeeks,
+        paymentTerms: quotationData.paymentTerms,
+        status: "Submitted",
+        quotationItems: quotationData.quotationItems
       },
       {
         include: [{ model: db.QuotationItem, as: "quotationItems" }]
@@ -85,13 +90,18 @@ const getQuotations = async () => {
 };
 
 // UPDATE QUOTATION AND ITS ITEMS
-const updateQuotation = async (id, quotationData) => {
+const updateQuotation = async (id, company_id, quotationData) => {
+  const company = await db.Company.findOne({ where: { id: company_id } });
+  if (!company) throw new HttpErrors("Company not found", 400);
+  // const supplierName = company.name;
   try {
     const quotation = await db.Quotation.findOne({ where: { id } });
     if (!quotation) {
       throw new HttpErrors("Quotation not found", 404);
     }
-
+    if (quotation.company_id !== company_id) {
+      throw new HttpErrors("Unauthorized: You can only update your own quotations", 403);
+    }
     // Update main quotation fields
     await db.Quotation.update(quotationData, { where: { id } });
 
@@ -115,11 +125,17 @@ const updateQuotation = async (id, quotationData) => {
 };
 
 // DELETE QUOTATION AND ITS ITEMS
-const deleteQuotation = async (id) => {
+const deleteQuotation = async (id, company_id) => {
+  const company = await db.Company.findOne({ where: { id: company_id } });
+  if (!company) throw new HttpErrors("Company not found", 400);
+  const supplierName = company.name;
   try {
     const quotation = await db.Quotation.findOne({ where: { id } });
     if (!quotation) {
       throw new HttpErrors("Quotation not found", 404);
+    }
+    if (quotation.supplierName !== supplierName) {
+      throw new HttpErrors("Unauthorized: You can only delete your own quotations", 403);
     }
     await db.QuotationItem.destroy({ where: { quotationId: id } });
     await db.Quotation.destroy({ where: { id } });

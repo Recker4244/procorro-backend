@@ -63,6 +63,6 @@ module.exports = {
     });
   },
   down: async (queryInterface) => {
-    await queryInterface.dropTable('QuotationsItems');
+    await queryInterface.dropTable('QuotationItems');
   },
 };
